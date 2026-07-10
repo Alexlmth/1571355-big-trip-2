@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Неопознанный енот](https://up.htmlacademy.ru/ecmascript-individual/2/user/1571355).
-* Наставник: `Неизвестно`.
+* Наставник: [Дмитрий Атаманов](https://htmlacademy.ru/profile/atamanov_dmitriy).
 
 ---
 
