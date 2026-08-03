@@ -7,7 +7,9 @@ const RenderPosition = {
 
 function createElement(template) {
   const newElement = document.createElement('div');
-  newElement.innerHTML = template;
+  const preparedTemplate = template.trim().replace(/>\s+</g, '><');
+
+  newElement.innerHTML = preparedTemplate;
 
   return newElement.firstElementChild;
 }
