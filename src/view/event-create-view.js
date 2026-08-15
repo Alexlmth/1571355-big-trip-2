@@ -1,11 +1,8 @@
 import { createElement } from '../render.js';
 import { EventTypes } from '../const.js';
+import { capitalize } from '../utils.js';
 
 const DEFAULT_EVENT_TYPE = 'flight';
-
-function capitalizeFirstLetter(value) {
-  return `${value[0].toUpperCase()}${value.slice(1)}`;
-}
 
 function createEventTypeTemplate(eventType, currentType) {
   const isChecked = eventType === currentType ? 'checked' : '';
@@ -13,7 +10,7 @@ function createEventTypeTemplate(eventType, currentType) {
   return (
     `<div class="event__type-item">
       <input id="event-type-${eventType}-create" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType}" ${isChecked}>
-      <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-create">${capitalizeFirstLetter(eventType)}</label>
+      <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-create">${capitalize(eventType)}</label>
     </div>`
   );
 }
@@ -91,7 +88,7 @@ function createEventCreateTemplate({ destinations, offers }) {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-create">
-              ${capitalizeFirstLetter(DEFAULT_EVENT_TYPE)}
+              ${capitalize(DEFAULT_EVENT_TYPE)}
             </label>
             <input class="event__input  event__input--destination" id="event-destination-create" type="text" name="event-destination" value="" list="destination-list-create">
             <datalist id="destination-list-create">

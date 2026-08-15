@@ -1,6 +1,6 @@
 import { render } from '../render.js';
 import FilterView from '../view/filter-view.js';
-import { FilterItems, FilterType } from '../const.js';
+import { FilterType } from '../const.js';
 
 const DEFAULT_FILTER_TYPE = FilterType.EVERYTHING;
 
@@ -13,7 +13,7 @@ export default class FilterPresenter {
 
   init() {
     render(new FilterView({
-      filters: FilterItems,
+      filters: Object.values(FilterType),
       currentFilterType: this.currentFilterType,
       onFilterTypeChange: this.handleFilterTypeChange,
     }), this.filtersContainer);

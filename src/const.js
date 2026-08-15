@@ -7,12 +7,13 @@ const FilterType = {
   PAST: 'past',
 };
 
-const FilterItems = [
-  { type: FilterType.EVERYTHING, name: 'Everything' },
-  { type: FilterType.FUTURE, name: 'Future' },
-  { type: FilterType.PRESENT, name: 'Present' },
-  { type: FilterType.PAST, name: 'Past' },
-];
+const SortType = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFER: 'offer',
+};
 
 const EventTypes = [
   'taxi',
@@ -26,4 +27,4 @@ const EventTypes = [
   'restaurant',
 ];
 
-export { POINTS_COUNT, FilterType, FilterItems, EventTypes };
+export { POINTS_COUNT, FilterType, SortType, EventTypes };

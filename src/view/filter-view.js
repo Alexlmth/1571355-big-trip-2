@@ -1,13 +1,16 @@
 import { createElement } from '../render.js';
 
-function createFilterItemTemplate(filter, currentFilterType) { //берет один объект фильтра и превращает его в один кусочек HTML с radio-кнопкой и label.
-  const { type, name } = filter;
-  const isChecked = type === currentFilterType ? 'checked' : '';
+function getFilterName(filterType) {
+  return filterType[0].toUpperCase() + filterType.slice(1);
+}
+
+function createFilterItemTemplate(filterType, currentFilterType) { //берет один тип фильтра и превращает его в один кусочек HTML с radio-кнопкой и label.
+  const isChecked = filterType === currentFilterType ? 'checked' : '';
 
   return (
     `<div class="trip-filters__filter">
-      <input id="filter-${type}" class="trip-filters__filter-input visually-hidden" type="radio" name="trip-filter" value="${type}" ${isChecked}>
-      <label class="trip-filters__filter-label" for="filter-${type}">${name}</label>
+      <input id="filter-${filterType}" class="trip-filters__filter-input visually-hidden" type="radio" name="trip-filter" value="${filterType}" ${isChecked}>
+      <label class="trip-filters__filter-label" for="filter-${filterType}">${getFilterName(filterType)}</label>
     </div>`
   ) ;
 }

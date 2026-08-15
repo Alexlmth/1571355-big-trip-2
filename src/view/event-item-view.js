@@ -1,4 +1,5 @@
 import { createElement } from '../render.js';
+import { capitalize } from '../utils.js';
 
 const DateFormat = {
   DATE: {
@@ -60,10 +61,6 @@ function createOffersTemplate(offers) {
   );
 }
 
-function capitalizeFirstLetter(value) {
-  return `${value[0].toUpperCase()}${value.slice(1)}`;
-}
-
 function createEventItemTemplate(point) {
   const {
     dateFrom,
@@ -84,7 +81,7 @@ function createEventItemTemplate(point) {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${capitalizeFirstLetter(type)} ${destination.name}</h3>
+        <h3 class="event__title">${capitalize(type)} ${destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${getDateTime(dateFrom)}">${humanizeTime(dateFrom)}</time>
