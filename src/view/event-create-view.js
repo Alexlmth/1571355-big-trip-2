@@ -1,16 +1,14 @@
 import { createElement } from '../render.js';
-import { EventTypes } from '../const.js';
+import { EventTypes, DEFAULT_EVENT_TYPE } from '../const.js';
 import { capitalize } from '../utils.js';
 
-const DEFAULT_EVENT_TYPE = 'flight';
-
-function createEventTypeTemplate(eventType, currentType) {
+function createEventTypeTemplate(eventType, currentType, pointId) {
   const isChecked = eventType === currentType ? 'checked' : '';
 
   return (
     `<div class="event__type-item">
-      <input id="event-type-${eventType}-create" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType}" ${isChecked}>
-      <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-create">${capitalize(eventType)}</label>
+      <input id="event-type-${eventType}-${pointId}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType}" ${isChecked}>
+      <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-${pointId}">${capitalize(eventType)}</label>
     </div>`
   );
 }
@@ -19,11 +17,11 @@ function createDestinationOptionTemplate(destination) {
   return `<option value="${destination.name}"></option>`;
 }
 
-function createOfferTemplate(offer) {
+function createOfferTemplate(offer, pointId) {
   return (
     `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}-create" type="checkbox" name="event-offer-${offer.id}">
-      <label class="event__offer-label" for="event-offer-${offer.id}-create">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}-${pointId}" type="checkbox" name="event-offer-${offer.id}">
+      <label class="event__offer-label" for="event-offer-${offer.id}-${pointId}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${offer.price}</span>
@@ -32,7 +30,7 @@ function createOfferTemplate(offer) {
   );
 }
 
-function createOffersTemplate(type, offers) {
+function createOffersTemplate(type, offers, pointId) {
   const offersByType = offers.find((offerItem) => offerItem.type === type);
 
   if (!offersByType) {
@@ -44,7 +42,7 @@ function createOffersTemplate(type, offers) {
   }
 
   const offersTemplate = offersByType.offers
-    .map((offer) => createOfferTemplate(offer))
+    .map((offer) => createOfferTemplate(offer, pointId))
     .join('');
 
   return (
@@ -58,25 +56,25 @@ function createOffersTemplate(type, offers) {
   );
 }
 
-function createEventCreateTemplate({ destinations, offers }) {
+function createEventCreateTemplate({ destinations, offers, pointId }) {
   const eventTypesTemplate = EventTypes
-    .map((eventType) => createEventTypeTemplate(eventType, DEFAULT_EVENT_TYPE))
+    .map((eventType) => createEventTypeTemplate(eventType, DEFAULT_EVENT_TYPE, pointId))
     .join('');
   const destinationsTemplate = destinations
     .map((destination) => createDestinationOptionTemplate(destination))
     .join('');
-  const offersTemplate = createOffersTemplate(DEFAULT_EVENT_TYPE, offers);
+  const offersTemplate = createOffersTemplate(DEFAULT_EVENT_TYPE, offers, pointId);
 
   return (
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
-            <label class="event__type  event__type-btn" for="event-type-toggle-create">
+            <label class="event__type  event__type-btn" for="event-type-toggle-${pointId}">
               <span class="visually-hidden">Choose event type</span>
               <img class="event__type-icon" width="17" height="17" src="img/icons/${DEFAULT_EVENT_TYPE}.png" alt="Event type icon">
             </label>
-            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-create" type="checkbox">
+            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${pointId}" type="checkbox">
 
             <div class="event__type-list">
               <fieldset class="event__type-group">
@@ -87,29 +85,29 @@ function createEventCreateTemplate({ destinations, offers }) {
           </div>
 
           <div class="event__field-group  event__field-group--destination">
-            <label class="event__label  event__type-output" for="event-destination-create">
+            <label class="event__label  event__type-output" for="event-destination-${pointId}">
               ${capitalize(DEFAULT_EVENT_TYPE)}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-create" type="text" name="event-destination" value="" list="destination-list-create">
-            <datalist id="destination-list-create">
+            <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="" list="destination-list-${pointId}">
+            <datalist id="destination-list-${pointId}">
               ${destinationsTemplate}
             </datalist>
           </div>
 
           <div class="event__field-group  event__field-group--time">
-            <label class="visually-hidden" for="event-start-time-create">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-create" type="text" name="event-start-time" value="">
+            <label class="visually-hidden" for="event-start-time-${pointId}">From</label>
+            <input class="event__input  event__input--time" id="event-start-time-${pointId}" type="text" name="event-start-time" value="">
             &mdash;
-            <label class="visually-hidden" for="event-end-time-create">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-create" type="text" name="event-end-time" value="">
+            <label class="visually-hidden" for="event-end-time-${pointId}">To</label>
+            <input class="event__input  event__input--time" id="event-end-time-${pointId}" type="text" name="event-end-time" value="">
           </div>
 
           <div class="event__field-group  event__field-group--price">
-            <label class="event__label" for="event-price-create">
+            <label class="event__label" for="event-price-${pointId}">
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-create" type="text" name="event-price" value="">
+            <input class="event__input  event__input--price" id="event-price-${pointId}" type="text" name="event-price" value="">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -125,15 +123,17 @@ function createEventCreateTemplate({ destinations, offers }) {
 }
 
 export default class EventCreateView {
-  constructor({ destinations, offers }) {
+  constructor({ destinations, offers, pointId }) {
     this.destinations = destinations;
     this.offers = offers;
+    this.pointId = pointId;
   }
 
   getTemplate() {
     return createEventCreateTemplate({
       destinations: this.destinations,
       offers: this.offers,
+      pointId: this.pointId,
     });
   }
 

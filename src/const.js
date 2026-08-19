@@ -27,4 +27,6 @@ const EventTypes = [
   'restaurant',
 ];
 
-export { POINTS_COUNT, FilterType, SortType, EventTypes };
+const DEFAULT_EVENT_TYPE = 'flight';
+
+export { POINTS_COUNT, FilterType, SortType, EventTypes, DEFAULT_EVENT_TYPE };

@@ -1,8 +1,5 @@
 import { createElement } from '../render.js';
-
-function getFilterName(filterType) {
-  return filterType[0].toUpperCase() + filterType.slice(1);
-}
+import { capitalize } from '../utils.js';
 
 function createFilterItemTemplate(filterType, currentFilterType) { //берет один тип фильтра и превращает его в один кусочек HTML с radio-кнопкой и label.
   const isChecked = filterType === currentFilterType ? 'checked' : '';
@@ -10,7 +7,7 @@ function createFilterItemTemplate(filterType, currentFilterType) { //берет 
   return (
     `<div class="trip-filters__filter">
       <input id="filter-${filterType}" class="trip-filters__filter-input visually-hidden" type="radio" name="trip-filter" value="${filterType}" ${isChecked}>
-      <label class="trip-filters__filter-label" for="filter-${filterType}">${getFilterName(filterType)}</label>
+      <label class="trip-filters__filter-label" for="filter-${filterType}">${capitalize(filterType)}</label>
     </div>`
   ) ;
 }

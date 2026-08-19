@@ -35,6 +35,7 @@ export default class TripPresenter {
     render(new EventCreateView({
       destinations: this.destinations,
       offers: this.offers,
+      pointId: crypto.randomUUID(),
     }), this.tripListComponent.getElement());
 
     for (const point of this.points) {

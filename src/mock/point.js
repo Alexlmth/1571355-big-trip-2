@@ -101,6 +101,7 @@ const getOfferById = (id) => {
 
 class MockPoint {
   constructor({
+    id,
     dateFrom,
     dateTo,
     type,
@@ -109,16 +110,20 @@ class MockPoint {
     offers,
     isFavorite,
   }) {
+    this.id = id;
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
     this.type = type;
     this.price = price;
     this.isFavorite = isFavorite;
     this.destination = getDestinationById(destination);
-    this.offers = offers.map((id) => getOfferById(id));
+    this.offers = offers.map((offerId) => getOfferById(offerId));
   }
 }
 
-const getRandomPoint = () => new MockPoint(getRandomArrayElement(mockPoints));
+const getRandomPoint = () => new MockPoint({
+  ...getRandomArrayElement(mockPoints),
+  id: crypto.randomUUID(),
+});
 
 export { getRandomPoint };

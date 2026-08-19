@@ -1,8 +1,9 @@
 import { createElement } from '../render.js';
 import { SortType } from '../const.js';
+import { capitalize } from '../utils.js';
 
 function getSortName(sortType) {
-  return sortType === SortType.OFFER ? 'Offers' : sortType[0].toUpperCase() + sortType.slice(1);
+  return sortType === SortType.OFFER ? 'Offers' : capitalize(sortType);
 }
 
 function createSortItemTemplate(sortType, currentSortType) {

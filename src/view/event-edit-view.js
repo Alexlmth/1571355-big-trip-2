@@ -27,13 +27,13 @@ function createDestinationOptionTemplate(destination) {
   return `<option value="${destination.name}"></option>`;
 }
 
-function createOfferTemplate(offer, selectedOffers) {
+function createOfferTemplate(offer, selectedOffers, pointId) {
   const isChecked = selectedOffers.some((selectedOffer) => selectedOffer.id === offer.id) ? 'checked' : '';
 
   return (
     `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" ${isChecked}>
-      <label class="event__offer-label" for="event-offer-${offer.id}">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}-${pointId}" type="checkbox" name="event-offer-${offer.id}" ${isChecked}>
+      <label class="event__offer-label" for="event-offer-${offer.id}-${pointId}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${offer.price}</span>
@@ -42,7 +42,7 @@ function createOfferTemplate(offer, selectedOffers) {
   );
 }
 
-function createOffersTemplate(type, offers, selectedOffers) {
+function createOffersTemplate(type, offers, selectedOffers, pointId) {
   const offersByType = offers.find((offerItem) => offerItem.type === type);
 
   if (!offersByType) {
@@ -54,7 +54,7 @@ function createOffersTemplate(type, offers, selectedOffers) {
   }
 
   const offersTemplate = offersByType.offers
-    .map((offer) => createOfferTemplate(offer, selectedOffers))
+    .map((offer) => createOfferTemplate(offer, selectedOffers, pointId))
     .join('');
 
   return (
@@ -102,7 +102,7 @@ function createEventEditTemplate({ point, destinations, offers }) {
   const destinationsTemplate = destinations
     .map((destinationItem) => createDestinationOptionTemplate(destinationItem))
     .join('');
-  const offersTemplate = createOffersTemplate(type, offers, selectedOffers);
+  const offersTemplate = createOffersTemplate(type, offers, selectedOffers, id);
   const photosTemplate = createPhotosTemplate(destination.photos);
 
   return (
