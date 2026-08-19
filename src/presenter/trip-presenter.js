@@ -2,43 +2,44 @@ import { render } from '../render.js';
 import EventCreateView from '../view/event-create-view.js';
 import EventEditView from '../view/event-edit-view.js';
 import EventItemView from '../view/event-item-view.js';
-import FilterView from '../view/filter-view.js';
-import SortView from '../view/sort-view.js';
-
-const EVENTS_COUNT = 3;
+import TripListView from '../view/trip-list-view.js';
 
 export default class TripPresenter {
-  constructor({ filtersContainer, tripEventsContainer }) {
-    this.filtersContainer = filtersContainer;
-    this.tripEventsContainer = tripEventsContainer;
+  tripListComponent = new TripListView();//создает экземпляр класса TripListView, который создает ul с классом trip-events__list  return '<ul class="trip-events__list"></ul>';
+
+  constructor({ tripEventsContainer, pointsModel }) {
+    this.tripEventsContainer = tripEventsContainer; // куда tripEventsContainer = document.querySelector('.trip-events');<section class="trip-events">
+    this.pointsModel = pointsModel; //что import PointsModel from './model/points-model.js';класс с тремя рандомными точками
+    this.points = [];
+    this.destinations = [];
+    this.offers = [];
   }
+  //Берет точки из модели.
+  //Копирует их в this.points.
+  //Запускает отрисовку списка.
 
   init() {
-    render(new FilterView(), this.filtersContainer);
-    render(new SortView(), this.tripEventsContainer);
-
+    this.points = [...this.pointsModel.points];
+    this.destinations = [...this.pointsModel.destinations];
+    this.offers = [...this.pointsModel.offers];
     this.renderEventsList();
   }
 
   renderEventsList() {
-    const eventsListElement = document.createElement('ul');
-    eventsListElement.classList.add('trip-events__list');
+    render(this.tripListComponent, this.tripEventsContainer);//отрисовывает ul с классом trip-events__list в section class="trip-events"
+    render(new EventEditView({
+      point: this.points[0],
+      destinations: this.destinations,
+      offers: this.offers,
+    }), this.tripListComponent.getElement());
+    render(new EventCreateView({
+      destinations: this.destinations,
+      offers: this.offers,
+      pointId: crypto.randomUUID(),
+    }), this.tripListComponent.getElement());
 
-    this.tripEventsContainer.append(eventsListElement);
-
-    this.renderEvent(eventsListElement, new EventEditView());
-    this.renderEvent(eventsListElement, new EventCreateView());
-
-    for (let i = 0; i < EVENTS_COUNT; i++) {
-      this.renderEvent(eventsListElement, new EventItemView());
+    for (const point of this.points) {
+      render(new EventItemView({ point }), this.tripListComponent.getElement());
     }
-  }
-
-  renderEvent(eventsListElement, eventComponent) {
-    const eventItemElement = document.createElement('li');
-    eventItemElement.classList.add('trip-events__item');
-    eventsListElement.append(eventItemElement);
-
-    render(eventComponent, eventItemElement);
   }
 }
