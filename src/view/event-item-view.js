@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { capitalize } from '../utils.js';
 
 const DateFormat = {
@@ -108,23 +108,26 @@ function createEventItemTemplate(point) {
   ) ;
 }
 
-export default class EventItemView {
-  constructor({ point }) {
-    this.point = point;
+export default class EventItemView extends AbstractView {
+  #point = null;
+  #onEditClick = null;
+
+  constructor({ point, onEditClick }) {
+    super();
+    this.#point = point;
+    this.#onEditClick = onEditClick;
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() {
-    return createEventItemTemplate(this.point);
+  get template() {
+    return createEventItemTemplate(this.#point);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onEditClick();
+  };
 
-  removeElement() {
-    this.element = null;
-  }
 }

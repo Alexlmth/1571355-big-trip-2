@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { capitalize } from '../utils.js';
 
 function createFilterItemTemplate(filterType, currentFilterType) { //берет один тип фильтра и превращает его в один кусочек HTML с radio-кнопкой и label.
@@ -26,33 +26,26 @@ function createFilterTemplate(filters, currentFilterType) { //создает п�
 }
 //  создание класса FilterView, который будет отвечать за отображение фильтров на странице.
 //   Класс содержит методы для получения шаблона фильтров, создания элемента DOM и удаления элемента из памяти.
-export default class FilterView {
+export default class FilterView extends AbstractView {
+  #filters = null;
+  #currentFilterType = null;
+  #onFilterTypeChange = null;
+
   constructor({ filters, currentFilterType, onFilterTypeChange }) {
-    this.filters = filters;
-    this.currentFilterType = currentFilterType;
-    this.onFilterTypeChange = onFilterTypeChange;
+    super();
+    this.#filters = filters;
+    this.#currentFilterType = currentFilterType;
+    this.#onFilterTypeChange = onFilterTypeChange;
+
+    this.element.addEventListener('change', this.filterTypeChangeHandler);
   }
 
-  getTemplate() {
-    return createFilterTemplate(this.filters, this.currentFilterType);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-      this.element.addEventListener('change', this.filterTypeChangeHandler);
-    }
-    //  возвращает элемент DOM, который был создан на основе шаблона фильтров.
-    //  Если элемент уже был создан ранее, то он будет возвращен без повторного создания.
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createFilterTemplate(this.#filters, this.#currentFilterType);
   }
 
   filterTypeChangeHandler = (evt) => {
     evt.preventDefault();
-    this.onFilterTypeChange(evt.target.value);
+    this.#onFilterTypeChange(evt.target.value);
   };
 }
