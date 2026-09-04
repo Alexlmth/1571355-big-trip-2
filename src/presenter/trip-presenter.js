@@ -1,5 +1,4 @@
-import { render } from '../render.js';
-import EventCreateView from '../view/event-create-view.js';
+import { render, replace } from '../framework/render.js';
 import EventEditView from '../view/event-edit-view.js';
 import EventItemView from '../view/event-item-view.js';
 import TripListView from '../view/trip-list-view.js';
@@ -13,6 +12,7 @@ export default class TripPresenter {
     this.points = [];
     this.destinations = [];
     this.offers = [];
+    this.pointComponents = [];
   }
   //Берет точки из модели.
   //Копирует их в this.points.
@@ -27,19 +27,47 @@ export default class TripPresenter {
 
   renderEventsList() {
     render(this.tripListComponent, this.tripEventsContainer);//отрисовывает ul с классом trip-events__list в section class="trip-events"
-    render(new EventEditView({
-      point: this.points[0],
-      destinations: this.destinations,
-      offers: this.offers,
-    }), this.tripListComponent.getElement());
-    render(new EventCreateView({
-      destinations: this.destinations,
-      offers: this.offers,
-      pointId: crypto.randomUUID(),
-    }), this.tripListComponent.getElement());
 
     for (const point of this.points) {
-      render(new EventItemView({ point }), this.tripListComponent.getElement());
+      let eventItemComponent = null;
+      let eventEditComponent = null;
+      let replaceFormToCard = null;
+
+      const escKeyDownHandler = (evt) => {
+        if (evt.key === 'Escape') {
+          evt.preventDefault();
+          replaceFormToCard();
+        }
+      };
+
+      replaceFormToCard = () => {
+        replace(eventItemComponent, eventEditComponent);
+        document.removeEventListener('keydown', escKeyDownHandler);
+      };
+
+      const replaceCardToForm = () => {
+        replace(eventEditComponent, eventItemComponent);
+        document.addEventListener('keydown', escKeyDownHandler);
+      };
+
+      eventItemComponent = new EventItemView({
+        point,
+        onEditClick: replaceCardToForm,
+      });
+      eventEditComponent = new EventEditView({
+        point,
+        destinations: this.destinations,
+        offers: this.offers,
+        onFormSubmit: replaceFormToCard,
+        onRollupClick: replaceFormToCard,
+      });
+
+      this.pointComponents.push({
+        eventItemComponent,
+        eventEditComponent,
+      });
+
+      render(eventItemComponent, this.tripListComponent.element);
     }
   }
 }

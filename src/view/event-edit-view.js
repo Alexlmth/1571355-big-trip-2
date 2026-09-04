@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { EventTypes } from '../const.js';
 import { capitalize } from '../utils.js';
 
@@ -172,30 +172,43 @@ function createEventEditTemplate({ point, destinations, offers }) {
   );
 }
 
-export default class EventEditView {
-  constructor({ point, destinations, offers }) {
-    this.point = point;
-    this.destinations = destinations;
-    this.offers = offers;
+export default class EventEditView extends AbstractView {
+  #point = null;
+  #destinations = null;
+  #offers = null;
+  #onFormSubmit = null;
+  #onRollupClick = null;
+
+  constructor({ point, destinations, offers, onFormSubmit, onRollupClick }) {
+    super();
+    this.#point = point;
+    this.#destinations = destinations;
+    this.#offers = offers;
+    this.#onFormSubmit = onFormSubmit;
+    this.#onRollupClick = onRollupClick;
+
+    this.element.querySelector('form')
+      .addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupClickHandler);
   }
 
-  getTemplate() {
+  get template() {
     return createEventEditTemplate({
-      point: this.point,
-      destinations: this.destinations,
-      offers: this.offers,
+      point: this.#point,
+      destinations: this.#destinations,
+      offers: this.#offers,
     });
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#onFormSubmit();
+  };
 
-    return this.element;
-  }
+  #rollupClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onRollupClick();
+  };
 
-  removeElement() {
-    this.element = null;
-  }
 }

@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { EventTypes, DEFAULT_EVENT_TYPE } from '../const.js';
 import { capitalize } from '../utils.js';
 
@@ -122,30 +122,24 @@ function createEventCreateTemplate({ destinations, offers, pointId }) {
   );
 }
 
-export default class EventCreateView {
+export default class EventCreateView extends AbstractView {
+  #destinations = null;
+  #offers = null;
+  #pointId = null;
+
   constructor({ destinations, offers, pointId }) {
-    this.destinations = destinations;
-    this.offers = offers;
-    this.pointId = pointId;
+    super();
+    this.#destinations = destinations;
+    this.#offers = offers;
+    this.#pointId = pointId;
   }
 
-  getTemplate() {
+  get template() {
     return createEventCreateTemplate({
-      destinations: this.destinations,
-      offers: this.offers,
-      pointId: this.pointId,
+      destinations: this.#destinations,
+      offers: this.#offers,
+      pointId: this.#pointId,
     });
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
 }
