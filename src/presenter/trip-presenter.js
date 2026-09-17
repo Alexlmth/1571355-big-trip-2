@@ -12,17 +12,12 @@ export default class TripPresenter {
   constructor({ tripEventsContainer, pointsModel }) {
     this.tripEventsContainer = tripEventsContainer; // куда tripEventsContainer = document.querySelector('.trip-events');<section class="trip-events">
     this.pointsModel = pointsModel; //что import PointsModel from './model/points-model.js';класс с тремя рандомными точками
-    this.points = [];
     this.destinations = [];
     this.offers = [];
     this.pointPresenters = new Map();
   }
-  //Берет точки из модели.
-  //Копирует их в this.points.
-  //Запускает отрисовку списка.
 
   init(filterType = FilterType.EVERYTHING) {
-    this.points = filterPoints(this.pointsModel.points, filterType);
     this.destinations = [...this.pointsModel.destinations];
     this.offers = [...this.pointsModel.offers];
     this.clearEventsList();
@@ -38,7 +33,9 @@ export default class TripPresenter {
   }
 
   renderEventsList(filterType) {
-    if (this.points.length === 0) {
+    const points = filterPoints(this.pointsModel.points, filterType);
+
+    if (points.length === 0) {
       this.noPointComponent = new MessageView({
         message: NoPointTextType[filterType],
       });
@@ -49,7 +46,7 @@ export default class TripPresenter {
     this.tripListComponent = new TripListView();
     render(this.tripListComponent, this.tripEventsContainer);//отрисовывает ul с классом trip-events__list в section class="trip-events"
 
-    for (const point of this.points) {
+    for (const point of points) {
       const pointPresenter = new PointPresenter({
         pointListContainer: this.tripListComponent.element,
         point,
@@ -66,9 +63,6 @@ export default class TripPresenter {
 
   handlePointChange = (updatedPoint) => {
     this.pointsModel.points = this.pointsModel.points.map((point) =>
-      point.id === updatedPoint.id ? updatedPoint : point
-    );
-    this.points = this.points.map((point) =>
       point.id === updatedPoint.id ? updatedPoint : point
     );
 
