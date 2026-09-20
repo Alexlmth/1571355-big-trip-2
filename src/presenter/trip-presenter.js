@@ -8,11 +8,6 @@ import TripListView from '../view/trip-list-view.js';
 
 const DEFAULT_SORT_TYPE = SortType.DAY;
 
-const sortPointsByDay = (pointA, pointB) => pointA.dateFrom - pointB.dateFrom;
-const sortPointsByTime = (pointA, pointB) =>
-  (pointB.dateTo - pointB.dateFrom) - (pointA.dateTo - pointA.dateFrom);
-const sortPointsByPrice = (pointA, pointB) => pointB.price - pointA.price;
-
 export default class TripPresenter {
   sortComponent = null;
   tripListComponent = null;
@@ -48,11 +43,13 @@ export default class TripPresenter {
   getSortedPoints(points) {
     switch (this.currentSortType) {
       case SortType.TIME:
-        return points.slice().sort(sortPointsByTime);
+        return points.slice().sort((pointA, pointB) =>
+          (pointB.dateTo - pointB.dateFrom) - (pointA.dateTo - pointA.dateFrom)
+        );
       case SortType.PRICE:
-        return points.slice().sort(sortPointsByPrice);
+        return points.slice().sort((pointA, pointB) => pointB.price - pointA.price);
       case SortType.DAY:
-        return points.slice().sort(sortPointsByDay);
+        return points.slice().sort((pointA, pointB) => pointA.dateFrom - pointB.dateFrom);
     }
   }
 

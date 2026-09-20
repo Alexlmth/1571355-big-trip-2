@@ -49,13 +49,13 @@ export default class SortView extends AbstractView {
   }
 
   #sortTypeClickHandler = (evt) => {
+    evt.preventDefault();
+
     const sortElement = evt.target.closest('.trip-sort__btn');
 
     if (!sortElement) {
       return;
     }
-
-    evt.preventDefault();
 
     const input = this.element.querySelector(`#sort-${sortElement.dataset.sortType}`);
 
