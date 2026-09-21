@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { EventTypes } from '../const.js';
 import { capitalize } from '../utils.js';
 
@@ -86,7 +86,24 @@ function createPhotosTemplate(photos) {
   );
 }
 
-function createEventEditTemplate({ point, destinations, offers }) {
+function createDestinationTemplate(destination) {
+  if (!destination) {
+    return '';
+  }
+
+  const photosTemplate = createPhotosTemplate(destination.photos);
+
+  return (
+    `<section class="event__section  event__section--destination">
+      <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+      <p class="event__destination-description">${destination.description}</p>
+
+      ${photosTemplate}
+    </section>`
+  );
+}
+
+function createEventEditTemplate({ state, destinations, offers }) {
   const {
     id,
     dateFrom,
@@ -95,7 +112,7 @@ function createEventEditTemplate({ point, destinations, offers }) {
     price,
     destination,
     offers: selectedOffers,
-  } = point;
+  } = state;
   const eventTypesTemplate = EventTypes
     .map((eventType) => createEventTypeTemplate(eventType, type, id))
     .join('');
@@ -103,7 +120,7 @@ function createEventEditTemplate({ point, destinations, offers }) {
     .map((destinationItem) => createDestinationOptionTemplate(destinationItem))
     .join('');
   const offersTemplate = createOffersTemplate(type, offers, selectedOffers, id);
-  const photosTemplate = createPhotosTemplate(destination.photos);
+  const destinationTemplate = createDestinationTemplate(destination);
 
   return (
     `<li class="trip-events__item">
@@ -128,7 +145,7 @@ function createEventEditTemplate({ point, destinations, offers }) {
             <label class="event__label  event__type-output" for="event-destination-${id}">
               ${capitalize(type)}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination.name}" list="destination-list-${id}">
+            <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination?.name ?? ''}" list="destination-list-${id}">
             <datalist id="destination-list-${id}">
               ${destinationsTemplate}
             </datalist>
@@ -160,20 +177,14 @@ function createEventEditTemplate({ point, destinations, offers }) {
         <section class="event__details">
           ${offersTemplate}
 
-          <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${destination.description}</p>
-
-            ${photosTemplate}
-          </section>
+          ${destinationTemplate}
         </section>
       </form>
     </li>`
   );
 }
 
-export default class EventEditView extends AbstractView {
-  #point = null;
+export default class EventEditView extends AbstractStatefulView {
   #destinations = null;
   #offers = null;
   #onFormSubmit = null;
@@ -181,24 +192,36 @@ export default class EventEditView extends AbstractView {
 
   constructor({ point, destinations, offers, onFormSubmit, onRollupClick }) {
     super();
-    this.#point = point;
+    this._setState(EventEditView.parsePointToState(point));
     this.#destinations = destinations;
     this.#offers = offers;
     this.#onFormSubmit = onFormSubmit;
     this.#onRollupClick = onRollupClick;
 
-    this.element.querySelector('form')
-      .addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#rollupClickHandler);
+    this._restoreHandlers();
   }
 
   get template() {
     return createEventEditTemplate({
-      point: this.#point,
+      state: this._state,
       destinations: this.#destinations,
       offers: this.#offers,
     });
+  }
+
+  _restoreHandlers() {
+    this.element.querySelector('form')
+      .addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupClickHandler);
+    this.element.querySelector('.event__type-group')
+      .addEventListener('change', this.#eventTypeChangeHandler);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
+  }
+
+  static parsePointToState(point) {
+    return structuredClone(point);
   }
 
   #formSubmitHandler = (evt) => {
@@ -209,6 +232,29 @@ export default class EventEditView extends AbstractView {
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
     this.#onRollupClick();
+  };
+
+  #eventTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    this.updateElement({
+      type: evt.target.value,
+      offers: [],
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const selectedDestination = this.#destinations.find((destination) => destination.name === evt.target.value);
+
+    if (!selectedDestination) {
+      return;
+    }
+
+    this.updateElement({
+      destination: selectedDestination,
+    });
   };
 
 }
