@@ -3,6 +3,10 @@ import { EventTypes } from '../const.js';
 import { capitalize } from '../utils.js';
 
 function humanizeDateTime(date) {
+  if (!(date instanceof Date)) {
+    return date;
+  }
+
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = String(date.getFullYear()).slice(2);
@@ -217,7 +221,15 @@ export default class EventEditView extends AbstractStatefulView {
     this.element.querySelector('.event__type-group')
       .addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event__input--destination')
-      .addEventListener('change', this.#destinationChangeHandler);
+      .addEventListener('input', this.#destinationInputHandler);
+    this.element.querySelector('[name="event-start-time"]')
+      ?.addEventListener('input', this.#dateFromInputHandler);
+    this.element.querySelector('[name="event-end-time"]')
+      ?.addEventListener('input', this.#dateToInputHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#priceInputHandler);
+    this.element.querySelectorAll('.event__offer-checkbox')
+      .forEach((offerElement) => offerElement.addEventListener('change', this.#offerChangeHandler));
   }
 
   static parsePointToState(point) {
@@ -243,7 +255,7 @@ export default class EventEditView extends AbstractStatefulView {
     });
   };
 
-  #destinationChangeHandler = (evt) => {
+  #destinationInputHandler = (evt) => {
     evt.preventDefault();
 
     const selectedDestination = this.#destinations.find((destination) => destination.name === evt.target.value);
@@ -254,6 +266,40 @@ export default class EventEditView extends AbstractStatefulView {
 
     this.updateElement({
       destination: selectedDestination,
+    });
+  };
+
+  #dateFromInputHandler = (evt) => {
+    evt.preventDefault();
+
+    this._setState({
+      dateFrom: evt.target.value,
+    });
+  };
+
+  #dateToInputHandler = (evt) => {
+    evt.preventDefault();
+
+    this._setState({
+      dateTo: evt.target.value,
+    });
+  };
+
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+
+    this._setState({
+      price: evt.target.value,
+    });
+  };
+
+  #offerChangeHandler = () => {
+    const availableOffers = this.#offers.find((offerItem) => offerItem.type === this._state.type)?.offers ?? [];
+    const checkedOfferIds = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'))
+      .map((offerElement) => Number(offerElement.name.replace('event-offer-', '')));
+
+    this._setState({
+      offers: availableOffers.filter((offer) => checkedOfferIds.includes(offer.id)),
     });
   };
 

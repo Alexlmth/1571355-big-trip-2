@@ -99,6 +99,8 @@ function createEventCreateTemplate({ state, destinations, offers }) {
     type,
     price,
     destination,
+    dateFrom,
+    dateTo,
     offers: selectedOffers,
   } = state;
   const eventTypesTemplate = EventTypes
@@ -141,10 +143,10 @@ function createEventCreateTemplate({ state, destinations, offers }) {
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-${id}">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="">
+            <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dateFrom}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-${id}">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="">
+            <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dateTo}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -194,7 +196,15 @@ export default class EventCreateView extends AbstractStatefulView {
     this.element.querySelector('.event__type-group')
       .addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event__input--destination')
-      .addEventListener('change', this.#destinationChangeHandler);
+      .addEventListener('input', this.#destinationInputHandler);
+    this.element.querySelector('[name="event-start-time"]')
+      .addEventListener('input', this.#dateFromInputHandler);
+    this.element.querySelector('[name="event-end-time"]')
+      .addEventListener('input', this.#dateToInputHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#priceInputHandler);
+    this.element.querySelectorAll('.event__offer-checkbox')
+      .forEach((offerElement) => offerElement.addEventListener('change', this.#offerChangeHandler));
   }
 
   static parsePointToState(pointId) {
@@ -203,6 +213,8 @@ export default class EventCreateView extends AbstractStatefulView {
       type: DEFAULT_EVENT_TYPE,
       price: '',
       destination: null,
+      dateFrom: '',
+      dateTo: '',
       offers: [],
     };
   }
@@ -216,7 +228,7 @@ export default class EventCreateView extends AbstractStatefulView {
     });
   };
 
-  #destinationChangeHandler = (evt) => {
+  #destinationInputHandler = (evt) => {
     evt.preventDefault();
 
     const selectedDestination = this.#destinations.find((destination) => destination.name === evt.target.value);
@@ -227,6 +239,40 @@ export default class EventCreateView extends AbstractStatefulView {
 
     this.updateElement({
       destination: selectedDestination,
+    });
+  };
+
+  #dateFromInputHandler = (evt) => {
+    evt.preventDefault();
+
+    this._setState({
+      dateFrom: evt.target.value,
+    });
+  };
+
+  #dateToInputHandler = (evt) => {
+    evt.preventDefault();
+
+    this._setState({
+      dateTo: evt.target.value,
+    });
+  };
+
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+
+    this._setState({
+      price: evt.target.value,
+    });
+  };
+
+  #offerChangeHandler = () => {
+    const availableOffers = this.#offers.find((offerItem) => offerItem.type === this._state.type)?.offers ?? [];
+    const checkedOfferIds = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'))
+      .map((offerElement) => Number(offerElement.name.replace('event-offer-', '')));
+
+    this._setState({
+      offers: availableOffers.filter((offer) => checkedOfferIds.includes(offer.id)),
     });
   };
 
