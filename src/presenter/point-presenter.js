@@ -44,7 +44,7 @@ export default class PointPresenter {
       point: this.#point,
       destinations: this.#destinations,
       offers: this.#offers,
-      onFormSubmit: this.#replaceFormToCard,
+      onFormSubmit: this.#formSubmitHandler,
       onRollupClick: this.#replaceFormToCard,
     });
 
@@ -96,5 +96,9 @@ export default class PointPresenter {
       ...this.#point,
       isFavorite: !this.#point.isFavorite,
     });
+  };
+
+  #formSubmitHandler = (updatedPoint) => {
+    this.#onDataChange(updatedPoint);
   };
 }
