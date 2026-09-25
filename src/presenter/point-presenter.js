@@ -44,7 +44,7 @@ export default class PointPresenter {
       point: this.#point,
       destinations: this.#destinations,
       offers: this.#offers,
-      onFormSubmit: this.#replaceFormToCard,
+      onFormSubmit: this.#formSubmitHandler,
       onRollupClick: this.#replaceFormToCard,
     });
 
@@ -72,6 +72,7 @@ export default class PointPresenter {
   }
 
   #replaceFormToCard = () => {
+    this.#eventEditComponent.destroyDatepickers();
     replace(this.#eventItemComponent, this.#eventEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
@@ -80,6 +81,7 @@ export default class PointPresenter {
   #replaceCardToForm = () => {
     this.#onModeChange();
     replace(this.#eventEditComponent, this.#eventItemComponent);
+    this.#eventEditComponent.initDatepickers();
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.EDITING;
   };
@@ -96,5 +98,9 @@ export default class PointPresenter {
       ...this.#point,
       isFavorite: !this.#point.isFavorite,
     });
+  };
+
+  #formSubmitHandler = (updatedPoint) => {
+    this.#onDataChange(updatedPoint);
   };
 }

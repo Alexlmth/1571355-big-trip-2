@@ -1,39 +1,46 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { capitalize } from '../utils.js';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 
 const DateFormat = {
-  DATE: {
-    month: 'short',
-    day: '2-digit',
-  },
-  TIME: {
-    hour: '2-digit',
-    minute: '2-digit',
-  },
+  DATE: 'MMM DD',
+  TIME: 'HH:mm',
 };
 
+dayjs.extend(duration);
+
 function humanizeDate(date) {
-  return date.toLocaleDateString('en-US', DateFormat.DATE).toUpperCase();
+  return dayjs(date).format(DateFormat.DATE).toUpperCase();
 }
 
 function humanizeTime(date) {
-  return date.toLocaleTimeString('en-US', DateFormat.TIME);
+  return dayjs(date).format(DateFormat.TIME);
 }
 
 function getDateTime(date) {
-  return date.toISOString();
+  return dayjs(date).toISOString();
 }
 
 function getDuration(dateFrom, dateTo) {
-  const durationInMinutes = Math.floor((dateTo - dateFrom) / 60000);
-  const hours = Math.floor(durationInMinutes / 60);
-  const minutes = durationInMinutes % 60;
+  const pointDuration = dayjs.duration(dayjs(dateTo).diff(dayjs(dateFrom)));
+  const days = Math.floor(pointDuration.asDays());
+  const hours = pointDuration.hours();
+  const minutes = pointDuration.minutes();
 
-  if (hours === 0) {
-    return `${minutes}M`;
+  const formattedDays = String(days).padStart(2, '0');
+  const formattedHours = String(hours).padStart(2, '0');
+  const formattedMinutes = String(minutes).padStart(2, '0');
+
+  if (days > 0) {
+    return `${formattedDays}D ${formattedHours}H ${formattedMinutes}M`;
   }
 
-  return `${hours}H ${minutes}M`;
+  if (hours > 0) {
+    return `${formattedHours}H ${formattedMinutes}M`;
+  }
+
+  return `${formattedMinutes}M`;
 }
 
 function createOfferTemplate(offer) {
