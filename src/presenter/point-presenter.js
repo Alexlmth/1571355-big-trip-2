@@ -72,6 +72,7 @@ export default class PointPresenter {
   }
 
   #replaceFormToCard = () => {
+    this.#eventEditComponent.destroyDatepickers();
     replace(this.#eventItemComponent, this.#eventEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
@@ -80,6 +81,7 @@ export default class PointPresenter {
   #replaceCardToForm = () => {
     this.#onModeChange();
     replace(this.#eventEditComponent, this.#eventItemComponent);
+    this.#eventEditComponent.initDatepickers();
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.EDITING;
   };

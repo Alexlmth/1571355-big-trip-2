@@ -193,6 +193,7 @@ export default class EventEditView extends AbstractStatefulView {
   #onRollupClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
+  #isDatepickerActive = false;
 
   constructor({ point, destinations, offers, onFormSubmit, onRollupClick }) {
     super();
@@ -226,7 +227,10 @@ export default class EventEditView extends AbstractStatefulView {
       .addEventListener('input', this.#priceInputHandler);
     this.element.querySelectorAll('.event__offer-checkbox')
       .forEach((offerElement) => offerElement.addEventListener('change', this.#offerChangeHandler));
-    this.#setDatepickers();
+
+    if (this.#isDatepickerActive) {
+      this.#setDatepickers();
+    }
   }
 
   static parsePointToState(point) {
@@ -240,6 +244,16 @@ export default class EventEditView extends AbstractStatefulView {
   removeElement() {
     this.#destroyDatepickers();
     super.removeElement();
+  }
+
+  initDatepickers() {
+    this.#isDatepickerActive = true;
+    this.#setDatepickers();
+  }
+
+  destroyDatepickers() {
+    this.#isDatepickerActive = false;
+    this.#destroyDatepickers();
   }
 
   #formSubmitHandler = (evt) => {
@@ -276,6 +290,8 @@ export default class EventEditView extends AbstractStatefulView {
   };
 
   #setDatepickers() {
+    this.#destroyDatepickers();
+
     this.#datepickerFrom = flatpickr(
       this.element.querySelector('[name="event-start-time"]'),
       {
