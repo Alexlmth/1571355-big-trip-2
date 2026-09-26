@@ -1,5 +1,5 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
-import { FilterType, NoPointTextType, SortType, UserAction } from '../const.js';
+import { FilterType, LoadingMessage, NoPointTextType, SortType, UserAction } from '../const.js';
 import { filterPoints } from '../utils.js';
 import MessageView from '../view/message-view.js';
 import NewPointPresenter from './new-point-presenter.js';
@@ -118,6 +118,22 @@ export default class TripPresenter {
   }
 
   renderEventsList() {
+    if (this.pointsModel.isLoading) {
+      this.noPointComponent = new MessageView({
+        message: LoadingMessage.LOADING,
+      });
+      render(this.noPointComponent, this.tripEventsContainer);
+      return;
+    }
+
+    if (this.pointsModel.isLoadingError) {
+      this.noPointComponent = new MessageView({
+        message: LoadingMessage.ERROR,
+      });
+      render(this.noPointComponent, this.tripEventsContainer);
+      return;
+    }
+
     const points = this.getSortedPoints(filterPoints(this.pointsModel.getPoints(), this.currentFilterType));
 
     if (points.length === 0) {
@@ -155,23 +171,27 @@ export default class TripPresenter {
     }
   }
 
-  handleUserAction = (actionType, update) => {
-    switch (actionType) {
-      case UserAction.UPDATE_POINT:
-        this.pointsModel.updatePoint(update);
-        break;
-      case UserAction.ADD_POINT:
-        this.pointsModel.addPoint(update);
-        this.currentSortType = DEFAULT_SORT_TYPE;
-        break;
-      case UserAction.DELETE_POINT:
-        this.pointsModel.deletePoint(update.id);
-        break;
-    }
+  handleUserAction = async (actionType, update) => {
+    try {
+      switch (actionType) {
+        case UserAction.UPDATE_POINT:
+          await this.pointsModel.updatePoint(update);
+          break;
+        case UserAction.ADD_POINT:
+          this.pointsModel.addPoint(update);
+          this.currentSortType = DEFAULT_SORT_TYPE;
+          break;
+        case UserAction.DELETE_POINT:
+          this.pointsModel.deletePoint(update.id);
+          break;
+      }
 
-    this.onDataChange();
-    this.clearEventsList();
-    this.renderEventsList();
+      this.onDataChange();
+      this.clearEventsList();
+      this.renderEventsList();
+    } catch {
+      // Feedback for failed update requests is implemented in the next project step.
+    }
   };
 
   handleNewPointDestroy = () => {

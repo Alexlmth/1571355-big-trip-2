@@ -327,7 +327,7 @@ export default class EventCreateView extends AbstractStatefulView {
   #offerChangeHandler = () => {
     const availableOffers = this.#offers.find((offerItem) => offerItem.type === this._state.type)?.offers ?? [];
     const checkedOfferIds = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'))
-      .map((offerElement) => Number(offerElement.name.replace('event-offer-', '')));
+      .map((offerElement) => offerElement.name.replace('event-offer-', ''));
 
     this._setState({
       offers: availableOffers.filter((offer) => checkedOfferIds.includes(offer.id)),
