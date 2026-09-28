@@ -1,5 +1,3 @@
-const POINTS_COUNT = 3;
-
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
@@ -12,6 +10,11 @@ const NoPointTextType = {
   [FilterType.FUTURE]: 'There are no future events now',
   [FilterType.PRESENT]: 'There are no present events now',
   [FilterType.PAST]: 'There are no past events now',
+};
+
+const LoadingMessage = {
+  LOADING: 'Loading...',
+  ERROR: 'Failed to load latest route information',
 };
 
 const SortType = {
@@ -42,4 +45,4 @@ const UserAction = {
   DELETE_POINT: 'DELETE_POINT',
 };
 
-export { POINTS_COUNT, FilterType, NoPointTextType, SortType, EventTypes, DEFAULT_EVENT_TYPE, UserAction };
+export { FilterType, NoPointTextType, LoadingMessage, SortType, EventTypes, DEFAULT_EVENT_TYPE, UserAction };
