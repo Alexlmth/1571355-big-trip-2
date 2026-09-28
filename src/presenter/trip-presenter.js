@@ -1,4 +1,5 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { FilterType, LoadingMessage, NoPointTextType, SortType, UserAction } from '../const.js';
 import { filterPoints } from '../utils.js';
 import MessageView from '../view/message-view.js';
@@ -8,6 +9,10 @@ import SortView from '../view/sort-view.js';
 import TripListView from '../view/trip-list-view.js';
 
 const DEFAULT_SORT_TYPE = SortType.DAY;
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class TripPresenter {
   sortComponent = null;
@@ -32,6 +37,10 @@ export default class TripPresenter {
     this.pointPresenters = new Map();
     this.currentFilterType = this.filterModel.getFilter();
     this.currentSortType = DEFAULT_SORT_TYPE;
+    this.uiBlocker = new UiBlocker({
+      lowerLimit: TimeLimit.LOWER_LIMIT,
+      upperLimit: TimeLimit.UPPER_LIMIT,
+    });
   }
 
   init() {
@@ -134,7 +143,17 @@ export default class TripPresenter {
       return;
     }
 
-    const points = this.getSortedPoints(filterPoints(this.pointsModel.getPoints(), this.currentFilterType));
+    const allPoints = this.pointsModel.getPoints();
+
+    if (allPoints.length === 0) {
+      this.noPointComponent = new MessageView({
+        message: NoPointTextType[FilterType.EVERYTHING],
+      });
+      render(this.noPointComponent, this.tripEventsContainer);
+      return;
+    }
+
+    const points = this.getSortedPoints(filterPoints(allPoints, this.currentFilterType));
 
     if (points.length === 0) {
       this.noPointComponent = new MessageView({
@@ -172,17 +191,19 @@ export default class TripPresenter {
   }
 
   handleUserAction = async (actionType, update) => {
+    this.uiBlocker.block();
+
     try {
       switch (actionType) {
         case UserAction.UPDATE_POINT:
           await this.pointsModel.updatePoint(update);
           break;
         case UserAction.ADD_POINT:
-          this.pointsModel.addPoint(update);
+          await this.pointsModel.addPoint(update);
           this.currentSortType = DEFAULT_SORT_TYPE;
           break;
         case UserAction.DELETE_POINT:
-          this.pointsModel.deletePoint(update.id);
+          await this.pointsModel.deletePoint(update.id);
           break;
       }
 
@@ -191,6 +212,9 @@ export default class TripPresenter {
       this.renderEventsList();
     } catch {
       // Feedback for failed update requests is implemented in the next project step.
+      throw new Error('Can\'t update data');
+    } finally {
+      this.uiBlocker.unblock();
     }
   };
 

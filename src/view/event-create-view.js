@@ -114,7 +114,9 @@ function createEventCreateTemplate({ state, destinations, offers }) {
     dateFrom,
     dateTo,
     offers: selectedOffers,
+    isSaving,
   } = state;
+  const isDisabled = isSaving ? 'disabled' : '';
   const eventTypesTemplate = EventTypes
     .map((eventType) => createEventTypeTemplate(eventType, type, id))
     .join('');
@@ -169,8 +171,8 @@ function createEventCreateTemplate({ state, destinations, offers }) {
             <input class="event__input  event__input--price" id="event-price-${id}" type="text" inputmode="numeric" pattern="[0-9]*" name="event-price" value="${price}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Cancel</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled}>${isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__reset-btn" type="reset" ${isDisabled}>Cancel</button>
         </header>
 
         <section class="event__details">
@@ -220,6 +222,8 @@ export default class EventCreateView extends AbstractStatefulView {
       .addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event__input--destination')
       .addEventListener('input', this.#destinationInputHandler);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price')
       .addEventListener('input', this.#priceInputHandler);
     this.element.querySelectorAll('.event__offer-checkbox')
@@ -240,13 +244,17 @@ export default class EventCreateView extends AbstractStatefulView {
       dateTo: null,
       offers: [],
       isFavorite: false,
+      isSaving: false,
     };
   }
 
   static parseStateToPoint(state) {
+    const point = structuredClone(state);
+    delete point.isSaving;
+
     return {
-      ...structuredClone(state),
-      price: Number(state.price),
+      ...point,
+      price: Number(point.price),
     };
   }
 
@@ -263,6 +271,18 @@ export default class EventCreateView extends AbstractStatefulView {
   destroyDatepickers() {
     this.#isDatepickerActive = false;
     this.#destroyDatepickers();
+  }
+
+  setSaving() {
+    this.updateElement({
+      isSaving: true,
+    });
+  }
+
+  resetSaving() {
+    this.updateElement({
+      isSaving: false,
+    });
   }
 
   #formSubmitHandler = (evt) => {
@@ -297,6 +317,23 @@ export default class EventCreateView extends AbstractStatefulView {
 
     if (!selectedDestination) {
       this._setState({
+        destination: null,
+      });
+      return;
+    }
+
+    this.updateElement({
+      destination: selectedDestination,
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const selectedDestination = this.#destinations.find((destination) => destination.name === evt.target.value);
+
+    if (!selectedDestination) {
+      this.updateElement({
         destination: null,
       });
       return;

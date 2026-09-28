@@ -48,10 +48,14 @@ export default class NewPointPresenter {
     this.#eventCreateComponent = null;
   }
 
-  #formSubmitHandler = (point) => {
-    this.#onDataChange(UserAction.ADD_POINT, point);
-    this.destroy();
-    this.#onDestroy();
+  #formSubmitHandler = async (point) => {
+    try {
+      this.#eventCreateComponent.setSaving();
+      await this.#onDataChange(UserAction.ADD_POINT, point);
+    } catch {
+      this.#eventCreateComponent.resetSaving();
+      this.#eventCreateComponent.shake();
+    }
   };
 
   #cancelClickHandler = () => {

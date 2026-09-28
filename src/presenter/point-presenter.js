@@ -95,18 +95,34 @@ export default class PointPresenter {
     }
   };
 
-  #favoriteClickHandler = () => {
-    this.#onDataChange(UserAction.UPDATE_POINT, {
-      ...this.#point,
-      isFavorite: !this.#point.isFavorite,
-    });
+  #favoriteClickHandler = async () => {
+    try {
+      await this.#onDataChange(UserAction.UPDATE_POINT, {
+        ...this.#point,
+        isFavorite: !this.#point.isFavorite,
+      });
+    } catch {
+      this.#eventItemComponent.shake();
+    }
   };
 
-  #formSubmitHandler = (updatedPoint) => {
-    this.#onDataChange(UserAction.UPDATE_POINT, updatedPoint);
+  #formSubmitHandler = async (updatedPoint) => {
+    try {
+      this.#eventEditComponent.setSaving();
+      await this.#onDataChange(UserAction.UPDATE_POINT, updatedPoint);
+    } catch {
+      this.#eventEditComponent.resetSaving();
+      this.#eventEditComponent.shake();
+    }
   };
 
-  #deleteClickHandler = (point) => {
-    this.#onDataChange(UserAction.DELETE_POINT, point);
+  #deleteClickHandler = async (point) => {
+    try {
+      this.#eventEditComponent.setDeleting();
+      await this.#onDataChange(UserAction.DELETE_POINT, point);
+    } catch {
+      this.#eventEditComponent.resetDeleting();
+      this.#eventEditComponent.shake();
+    }
   };
 }
