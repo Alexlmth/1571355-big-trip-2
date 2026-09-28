@@ -38,18 +38,18 @@ filterPresenter = new FilterPresenter({
     tripPresenter.init();
   },
 });
-async function initApplication() {
+
+function renderApplication() {
   filterPresenter.init();
   tripPresenter.init();
-
-  await pointsModel.init();
-
-  filterPresenter.init();
-  tripPresenter.init();
-  newEventButton.disabled = pointsModel.isLoadingError;
 }
 
-initApplication();
+pointsModel.init()
+  .catch(() => {})
+  .then(renderApplication)
+  .finally(() => {
+    newEventButton.disabled = pointsModel.isLoadingError;
+  });
 
 newEventButton.addEventListener('click', () => {
   newEventButton.disabled = true;
