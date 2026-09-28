@@ -53,7 +53,7 @@ export default class PointsModel {
     this.#points = [
       point,
       ...this.#points,
-    ];
+    ].sort((pointA, pointB) => pointA.dateFrom - pointB.dateFrom);
   }
 
   async deletePoint(pointId) {

@@ -143,7 +143,17 @@ export default class TripPresenter {
       return;
     }
 
-    const points = this.getSortedPoints(filterPoints(this.pointsModel.getPoints(), this.currentFilterType));
+    const allPoints = this.pointsModel.getPoints();
+
+    if (allPoints.length === 0) {
+      this.noPointComponent = new MessageView({
+        message: NoPointTextType[FilterType.EVERYTHING],
+      });
+      render(this.noPointComponent, this.tripEventsContainer);
+      return;
+    }
+
+    const points = this.getSortedPoints(filterPoints(allPoints, this.currentFilterType));
 
     if (points.length === 0) {
       this.noPointComponent = new MessageView({

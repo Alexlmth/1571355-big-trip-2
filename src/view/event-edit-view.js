@@ -230,6 +230,8 @@ export default class EventEditView extends AbstractStatefulView {
       .addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event__input--destination')
       .addEventListener('input', this.#destinationInputHandler);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price')
       .addEventListener('input', this.#priceInputHandler);
     this.element.querySelectorAll('.event__offer-checkbox')
@@ -249,9 +251,13 @@ export default class EventEditView extends AbstractStatefulView {
   }
 
   static parseStateToPoint(state) {
+    const point = structuredClone(state);
+    delete point.isSaving;
+    delete point.isDeleting;
+
     return {
-      ...structuredClone(state),
-      price: Number(state.price),
+      ...point,
+      price: Number(point.price),
     };
   }
 
@@ -331,6 +337,23 @@ export default class EventEditView extends AbstractStatefulView {
 
     if (!selectedDestination) {
       this._setState({
+        destination: null,
+      });
+      return;
+    }
+
+    this.updateElement({
+      destination: selectedDestination,
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const selectedDestination = this.#destinations.find((destination) => destination.name === evt.target.value);
+
+    if (!selectedDestination) {
+      this.updateElement({
         destination: null,
       });
       return;
