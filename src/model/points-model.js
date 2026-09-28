@@ -47,14 +47,18 @@ export default class PointsModel {
     );
   }
 
-  addPoint(point) {
+  async addPoint(newPoint) {
+    const point = await this.#tripApiService.addPoint(newPoint, this.destinations, this.offers);
+
     this.#points = [
       point,
       ...this.#points,
     ];
   }
 
-  deletePoint(pointId) {
+  async deletePoint(pointId) {
+    await this.#tripApiService.deletePoint(pointId);
+
     this.#points = this.#points.filter((point) => point.id !== pointId);
   }
 }

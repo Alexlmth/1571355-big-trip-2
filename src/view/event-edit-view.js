@@ -114,7 +114,10 @@ function createEventEditTemplate({ state, destinations, offers }) {
     price,
     destination,
     offers: selectedOffers,
+    isSaving,
+    isDeleting,
   } = state;
+  const isDisabled = isSaving || isDeleting ? 'disabled' : '';
   const eventTypesTemplate = EventTypes
     .map((eventType) => createEventTypeTemplate(eventType, type, id))
     .join('');
@@ -169,9 +172,9 @@ function createEventEditTemplate({ state, destinations, offers }) {
             <input class="event__input  event__input--price" id="event-price-${id}" type="text" inputmode="numeric" pattern="[0-9]*" name="event-price" value="${price}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
-          <button class="event__rollup-btn" type="button">
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled}>${isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__reset-btn" type="reset" ${isDisabled}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
+          <button class="event__rollup-btn" type="button" ${isDisabled}>
             <span class="visually-hidden">Open event</span>
           </button>
         </header>
@@ -238,7 +241,11 @@ export default class EventEditView extends AbstractStatefulView {
   }
 
   static parsePointToState(point) {
-    return structuredClone(point);
+    return {
+      ...structuredClone(point),
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToPoint(state) {
@@ -261,6 +268,30 @@ export default class EventEditView extends AbstractStatefulView {
   destroyDatepickers() {
     this.#isDatepickerActive = false;
     this.#destroyDatepickers();
+  }
+
+  setSaving() {
+    this.updateElement({
+      isSaving: true,
+    });
+  }
+
+  resetSaving() {
+    this.updateElement({
+      isSaving: false,
+    });
+  }
+
+  setDeleting() {
+    this.updateElement({
+      isDeleting: true,
+    });
+  }
+
+  resetDeleting() {
+    this.updateElement({
+      isDeleting: false,
+    });
   }
 
   #formSubmitHandler = (evt) => {

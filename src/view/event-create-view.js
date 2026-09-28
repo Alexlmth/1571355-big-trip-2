@@ -114,7 +114,9 @@ function createEventCreateTemplate({ state, destinations, offers }) {
     dateFrom,
     dateTo,
     offers: selectedOffers,
+    isSaving,
   } = state;
+  const isDisabled = isSaving ? 'disabled' : '';
   const eventTypesTemplate = EventTypes
     .map((eventType) => createEventTypeTemplate(eventType, type, id))
     .join('');
@@ -169,8 +171,8 @@ function createEventCreateTemplate({ state, destinations, offers }) {
             <input class="event__input  event__input--price" id="event-price-${id}" type="text" inputmode="numeric" pattern="[0-9]*" name="event-price" value="${price}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Cancel</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled}>${isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__reset-btn" type="reset" ${isDisabled}>Cancel</button>
         </header>
 
         <section class="event__details">
@@ -240,6 +242,7 @@ export default class EventCreateView extends AbstractStatefulView {
       dateTo: null,
       offers: [],
       isFavorite: false,
+      isSaving: false,
     };
   }
 
@@ -263,6 +266,18 @@ export default class EventCreateView extends AbstractStatefulView {
   destroyDatepickers() {
     this.#isDatepickerActive = false;
     this.#destroyDatepickers();
+  }
+
+  setSaving() {
+    this.updateElement({
+      isSaving: true,
+    });
+  }
+
+  resetSaving() {
+    this.updateElement({
+      isSaving: false,
+    });
   }
 
   #formSubmitHandler = (evt) => {

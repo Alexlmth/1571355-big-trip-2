@@ -1,6 +1,8 @@
 import ApiService from './framework/api-service.js';
 
 const Method = {
+  DELETE: 'DELETE',
+  POST: 'POST',
   PUT: 'PUT',
 };
 
@@ -70,5 +72,27 @@ export default class TripApiService extends ApiService {
     const updatedPoint = await ApiService.parseResponse(response);
 
     return adaptPointToClient(updatedPoint, destinations, offers);
+  }
+
+  async addPoint(point, destinations, offers) {
+    const newPoint = adaptPointToServer(point);
+    delete newPoint.id;
+
+    const response = await this._load({
+      url: 'points',
+      method: Method.POST,
+      body: JSON.stringify(newPoint),
+      headers: new Headers({'Content-Type': 'application/json'}),
+    });
+    const addedPoint = await ApiService.parseResponse(response);
+
+    return adaptPointToClient(addedPoint, destinations, offers);
+  }
+
+  async deletePoint(pointId) {
+    await this._load({
+      url: `points/${pointId}`,
+      method: Method.DELETE,
+    });
   }
 }
