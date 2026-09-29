@@ -75,6 +75,7 @@ export default class PointPresenter {
 
   #replaceFormToCard = () => {
     this.#eventEditComponent.destroyDatepickers();
+    this.#eventEditComponent.reset(this.#point);
     replace(this.#eventItemComponent, this.#eventEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;

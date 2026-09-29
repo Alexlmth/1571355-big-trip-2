@@ -3,10 +3,13 @@ import TripPresenter from './presenter/trip-presenter.js';
 import FilterModel from './model/filter-model.js';
 import PointsModel from './model/points-model.js';
 import TripApiService from './trip-api-service.js';
+import TripInfoView from './view/trip-info-view.js';
+import { RenderPosition, remove, render, replace } from './framework/render.js';
 
 const AUTHORIZATION = `Basic ${crypto.randomUUID()}`;
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
+const tripControlsContainer = document.querySelector('.trip-main__trip-controls');
 const filtersContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
 const newEventButton = document.querySelector('.trip-main__event-add-btn');
@@ -18,12 +21,35 @@ const pointsModel = new PointsModel({ tripApiService });
 const filterModel = new FilterModel();
 
 let filterPresenter = null;
+let tripInfoComponent = null;
+
+function renderTripInfo() {
+  const points = pointsModel.getPoints();
+
+  if (points.length === 0) {
+    remove(tripInfoComponent);
+    tripInfoComponent = null;
+    return;
+  }
+
+  const prevTripInfoComponent = tripInfoComponent;
+  tripInfoComponent = new TripInfoView({ points });
+
+  if (prevTripInfoComponent === null) {
+    render(tripInfoComponent, tripControlsContainer, RenderPosition.BEFOREBEGIN);
+    return;
+  }
+
+  replace(tripInfoComponent, prevTripInfoComponent);
+  remove(prevTripInfoComponent);
+}
 
 const tripPresenter = new TripPresenter({
   tripEventsContainer,
   pointsModel,
   filterModel,
   onDataChange: () => {
+    renderTripInfo();
     filterPresenter.init();
   },
   onNewPointDestroy: () => {
@@ -42,7 +68,10 @@ filterPresenter = new FilterPresenter({
 function renderApplication() {
   filterPresenter.init();
   tripPresenter.init();
+  renderTripInfo();
 }
+
+renderApplication();
 
 pointsModel.init()
   .catch(() => {})

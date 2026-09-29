@@ -25,7 +25,7 @@ function filterPoints(points, filterType) {
 function generateFilters(points) {
   return Object.values(FilterType).map((filterType) => ({
     type: filterType,
-    isDisabled: filterType !== FilterType.EVERYTHING && filterPoints(points, filterType).length === 0,
+    isDisabled: filterPoints(points, filterType).length === 0,
   }));
 }
 
