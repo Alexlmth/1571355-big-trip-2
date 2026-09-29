@@ -93,6 +93,10 @@ function createDestinationTemplate(destination) {
     return '';
   }
 
+  if (!destination.description && destination.photos.length === 0) {
+    return '';
+  }
+
   const photosTemplate = createPhotosTemplate(destination.photos);
 
   return (
@@ -117,7 +121,6 @@ function createEventEditTemplate({ state, destinations, offers }) {
     isSaving,
     isDeleting,
   } = state;
-  const isDisabled = isSaving || isDeleting ? 'disabled' : '';
   const eventTypesTemplate = EventTypes
     .map((eventType) => createEventTypeTemplate(eventType, type, id))
     .join('');
@@ -172,9 +175,9 @@ function createEventEditTemplate({ state, destinations, offers }) {
             <input class="event__input  event__input--price" id="event-price-${id}" type="text" inputmode="numeric" pattern="[0-9]*" name="event-price" value="${price}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled}>${isSaving ? 'Saving...' : 'Save'}</button>
-          <button class="event__reset-btn" type="reset" ${isDisabled}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
-          <button class="event__rollup-btn" type="button" ${isDisabled}>
+          <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__reset-btn" type="reset">${isDeleting ? 'Deleting...' : 'Delete'}</button>
+          <button class="event__rollup-btn" type="button">
             <span class="visually-hidden">Open event</span>
           </button>
         </header>
@@ -298,6 +301,10 @@ export default class EventEditView extends AbstractStatefulView {
     this.updateElement({
       isDeleting: false,
     });
+  }
+
+  reset(point) {
+    this.updateElement(EventEditView.parsePointToState(point));
   }
 
   #formSubmitHandler = (evt) => {

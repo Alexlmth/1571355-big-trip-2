@@ -93,6 +93,10 @@ function createDestinationTemplate(destination) {
     return '';
   }
 
+  if (!destination.description && destination.photos.length === 0) {
+    return '';
+  }
+
   const photosTemplate = createPhotosTemplate(destination.photos);
 
   return (
@@ -116,7 +120,6 @@ function createEventCreateTemplate({ state, destinations, offers }) {
     offers: selectedOffers,
     isSaving,
   } = state;
-  const isDisabled = isSaving ? 'disabled' : '';
   const eventTypesTemplate = EventTypes
     .map((eventType) => createEventTypeTemplate(eventType, type, id))
     .join('');
@@ -171,8 +174,8 @@ function createEventCreateTemplate({ state, destinations, offers }) {
             <input class="event__input  event__input--price" id="event-price-${id}" type="text" inputmode="numeric" pattern="[0-9]*" name="event-price" value="${price}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled}>${isSaving ? 'Saving...' : 'Save'}</button>
-          <button class="event__reset-btn" type="reset" ${isDisabled}>Cancel</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__reset-btn" type="reset">Cancel</button>
         </header>
 
         <section class="event__details">
